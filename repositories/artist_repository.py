@@ -4,59 +4,50 @@ from models.artist import Artist
 from models.album import Album
 import repositories.album_repository as album_repository
 
-def save(task):
-    sql = "INSERT INTO tasks (description, assignee, duration, completed) VALUES (%s, %s, %s, %s) RETURNING *"
-    values = [task.description, task.assignee, task.duration, task.completed]
+def save(artist):
+    sql = "INSERT INTO tasks (name) VALUES (%s) RETURNING *"
+    values = [artist.name]
     results = run_sql(sql, values)
     id = results[0]['id']
-    task.id = id
-    return task
-  
-  
-def select_all():  
-    tasks = [] 
-
-    sql = "SELECT * FROM tasks"
-    results = run_sql(sql)
-
-    for row in results:
-        task = Task(row['description'], row['assignee'], row['duration'], row['completed'], row['id'] )
-        tasks.append(task)
-    return tasks 
-    
-
-def select(id):
-    task = None
-    sql = "SELECT * FROM tasks WHERE id = %s"  
-    values = [id] 
-    results = run_sql(sql, values)
-
-    # checking if the list returned by `run_sql(sql, values)` is empty. Empty lists are 'fasly' 
-    # Could alternativly have..
-    # if len(results) > 0 
-    if results:
-        result = results[0]
-        task = Task(result['description'], result['assignee'], result['duration'], result['completed'], result['id'] )
-    return task
+    artist.id = id
+    return artist
 
 
 def delete_all():
-    sql = "DELETE  FROM tasks" 
+    sql = "DELETE  FROM artist" 
     run_sql(sql)
 
-def delete(id):
-    sql = "DELETE  FROM tasks WHERE id = %s" 
-    values = [id]
+
+def select(id):
+    artist = None
+    sql = "SELECT * FROM artist WHERE id = %s"  
+    values = [id] 
+    results = run_sql(sql, values)
+    if results:
+        result = results[0]
+        artist = Artist(result['name'], result['id'])
+    return artist
+
+
+def select_all():  
+    artist = [] 
+
+    sql = "SELECT * FROM artist"
+    results = run_sql(sql)
+
+    for row in results:
+        artist = Artist(row['name'], row['id'])
+        artist.append(artist)
+    return artist
+
+
+def update(artist):
+    sql = "UPDATE artist SET (name) = (%s) WHERE id = %s"
+    values = [artist.name, artist.id]
     run_sql(sql, values)
 
 
-def update(task):
-    sql = "UPDATE tasks SET (description, assignee, duration, completed) = (%s, %s, %s, %s) WHERE id = %s"
-    values = [task.description, task.assignee, task.duration, task.completed, task.id]
-    run_sql(sql, values) 
-    
-    
-        
-    
-    
-        
+def delete(id):
+    sql = "DELETE  FROM artist WHERE id = %s" 
+    values = [id]
+    run_sql(sql, values)
