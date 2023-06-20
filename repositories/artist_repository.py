@@ -30,15 +30,13 @@ def select(id):
 
 
 def select_all():  
-    artist = [] 
-
+    artists = [] 
     sql = "SELECT * FROM artist"
     results = run_sql(sql)
-
     for row in results:
         artist = Artist(row['name'], row['id'])
-        artist.append(artist)
-    return artist
+        artists.append(artist)
+    return artists
 
 
 def update(artist):

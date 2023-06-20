@@ -4,66 +4,48 @@ from models.album import Album
 from models.artist import Artist
 
 
-def save(user):
-    sql = "INSERT INTO users (first_name, last_name) VALUES (%s, %s) RETURNING *"
-    values = [user.first_name, user.last_name]
+def save(album):
+    sql = "INSERT INTO users (title, genre, artist) VALUES (%s, %s, %s) RETURNING *"
+    values = [album.title, album.genre, album.artist]
     results = run_sql(sql, values)
     id = results[0]['id']
-    user.id = id
-    return user
-
-
-def select_all():
-    users = []
-
-    sql = "SELECT * FROM users"
-    results = run_sql(sql)
-
-    for row in results:
-        user = User(row['first_name'], row['last_name'], row['id'] )
-        users.append(user)
-    return users
-
-
-def select(id):
-    user = None
-    sql = "SELECT * FROM users WHERE id = %s"
-    values = [id]
-    results = run_sql(sql, values)
-
-     # checking if the list returned by `run_sql(sql, values)` is empty. Empty lists are 'fasly' 
-    # Could alternativly have..
-    # if len(results) > 0 
-    if results:
-        result = results[0]
-        user = User(result['first_name'], result['last_name'], result['id'] )
-    return user
+    album.id = id
+    return album
 
 
 def delete_all():
-    sql = "DELETE  FROM users"
+    sql = "DELETE  FROM album"
     run_sql(sql)
 
 
+def select(id):
+    album = None
+    sql = "SELECT * FROM album WHERE id = %s"
+    values = [id]
+    results = run_sql(sql, values)
+    if results:
+        result = results[0]
+        album = Album(result['title'], result['genre'], result['artist'], result['id'])
+    return album
+
+
+def select_all():
+    albums = []
+    sql = "SELECT * FROM users"
+    results = run_sql(sql)
+    for row in results:
+        album = Album(row['title'], row['genre'], row['artist'], row['id'])
+        albums.append(album)
+    return albums
+
+
+def update(album):
+    sql = "UPDATE album SET (title, genre, artist) = (%s, %s, %a) WHERE id = %s"
+    values = [album.title, album.genre, album.artist, album.id]
+    run_sql(sql, values)
+
+
 def delete(id):
-    sql = "DELETE  FROM users WHERE id = %s"
+    sql = "DELETE  FROM album WHERE id = %s"
     values = [id]
     run_sql(sql, values)
-
-
-def update(user):
-    sql = "UPDATE users SET (first_name, last_name) = (%s, %s) WHERE id = %s"
-    values = [user.first_name, user.last_name, user.id]
-    run_sql(sql, values)
-
-def tasks(user):
-    tasks = []
-
-    sql = "SELECT * FROM tasks WHERE user_id = %s"
-    values = [user.id]
-    results = run_sql(sql, values)
-
-    for row in results:
-        task = Task(row['description'], user, row['duration'], row['completed'], row['id'] )
-        tasks.append(task)
-    return tasks
